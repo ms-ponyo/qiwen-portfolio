@@ -397,6 +397,15 @@ a {
   margin: 20px 0;
 }
 
+.video-container {
+  margin: 20px 0;
+}
+
+.video-container video {
+  border-radius: 4px;
+  background: #000;
+}
+
 .post-body h2,
 .post-body h3 {
   font-family: var(--font-heading);
