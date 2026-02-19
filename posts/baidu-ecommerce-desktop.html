@@ -1038,7 +1038,7 @@ figure[data-hook="figure-IMAGE"] [data-hook="image-viewer"] img { cursor:pointer
 
 <script>
 (function() {
-  var pageUrl = encodeURIComponent('https://wenqiwin-maker.github.io/qiwen-portfolio/' + window.location.pathname.replace(/^\//, ''));
+  var pageUrl = encodeURIComponent(window.location.href);
   var pageTitle = encodeURIComponent(document.title);
 
   var fb = document.querySelector('[data-hook="share-button__facebook"]');
@@ -1057,7 +1057,7 @@ figure[data-hook="figure-IMAGE"] [data-hook="image-viewer"] img { cursor:pointer
     window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + pageUrl, '_blank', 'width=600,height=400');
   });
   if (lk) lk.addEventListener('click', function() {
-    navigator.clipboard.writeText('https://wenqiwin-maker.github.io/qiwen-portfolio/' + window.location.pathname.replace(/^\\//, '')).then(function() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
       var original = lk.getAttribute('aria-label');
       lk.setAttribute('aria-label', 'Link copied!');
       lk.style.opacity = '0.6';
