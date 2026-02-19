@@ -1065,12 +1065,14 @@ figure[data-hook="figure-IMAGE"] [data-hook="image-viewer"] img { cursor:pointer
   });
   if (lk) lk.addEventListener('click', function() {
     navigator.clipboard.writeText(window.location.href).then(function() {
-      var original = lk.getAttribute('aria-label');
-      lk.setAttribute('aria-label', 'Link copied!');
-      lk.style.opacity = '0.6';
+      var toast = document.createElement('div');
+      toast.textContent = 'Link copied to clipboard';
+      toast.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:6px;font:14px/1.4 sans-serif;z-index:100000;opacity:0;transition:opacity 0.3s;';
+      document.body.appendChild(toast);
+      requestAnimationFrame(function() { toast.style.opacity = '1'; });
       setTimeout(function() {
-        lk.setAttribute('aria-label', original);
-        lk.style.opacity = '';
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.remove(); }, 300);
       }, 2000);
     });
   });
