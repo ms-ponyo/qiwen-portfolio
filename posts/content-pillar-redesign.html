@@ -871,51 +871,101 @@
 <style>
 .qw-lightbox-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.92); z-index:99999; cursor:pointer;
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:rgba(0,0,0,0.92); z-index:99999;
+  overflow:auto; -webkit-overflow-scrolling:touch;
 }
-.qw-lightbox-overlay.active { display:flex; justify-content:center; }
+.qw-lightbox-overlay.active { display:block; }
+.qw-lightbox-inner {
+  min-height:100%; display:flex; justify-content:center; align-items:flex-start;
+  padding:2vh 0;
+}
 .qw-lightbox-overlay img {
-  max-width:92vw; object-fit:contain; margin:2vh auto; display:block;
+  max-width:92vw; display:block; cursor:zoom-in;
   position:static !important; width:auto !important; height:auto !important;
+  flex-shrink:0;
 }
-.qw-lightbox-close {
+.qw-lightbox-overlay.zoomed img {
+  max-width:none; cursor:zoom-out;
+}
+.qw-lightbox-toolbar {
   position:fixed; top:16px; right:16px; z-index:100000;
-  width:40px; height:40px; border:none; background:rgba(255,255,255,0.15);
-  color:#fff; font-size:28px; line-height:1; border-radius:50%; cursor:pointer;
+  display:flex; gap:8px;
 }
-.qw-lightbox-close:hover { background:rgba(255,255,255,0.3); }
+.qw-lightbox-toolbar button {
+  width:40px; height:40px; border:none; background:rgba(255,255,255,0.15);
+  color:#fff; font-size:20px; line-height:1; border-radius:50%; cursor:pointer;
+}
+.qw-lightbox-toolbar button:hover { background:rgba(255,255,255,0.3); }
+.qw-lightbox-toolbar .qw-lightbox-close { font-size:28px; }
+.qw-lightbox-hint {
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:100000;
+  color:rgba(255,255,255,0.6); font:13px/1 sans-serif;
+  pointer-events:none; transition:opacity 0.3s;
+}
 [data-hook="image-expand-button"] { cursor:pointer; }
 figure[data-hook="figure-IMAGE"] wow-image img,
 figure[data-hook="figure-IMAGE"] [data-hook="image-viewer"] img { cursor:pointer; }
 </style>
 <div class="qw-lightbox-overlay">
-  <button class="qw-lightbox-close" aria-label="Close">&times;</button>
-  <img src="" alt="">
+  <div class="qw-lightbox-toolbar">
+    <button class="qw-lightbox-newtab" aria-label="Open in new tab" title="Open full size in new tab">&#8599;</button>
+    <button class="qw-lightbox-zoom" aria-label="Toggle zoom" title="Toggle zoom">&#128269;</button>
+    <button class="qw-lightbox-close" aria-label="Close" title="Close">&times;</button>
+  </div>
+  <div class="qw-lightbox-inner">
+    <img src="" alt="">
+  </div>
+  <div class="qw-lightbox-hint">Click image to zoom &middot; Scroll to pan</div>
 </div>
 <script>
 (function() {
   var overlay = document.querySelector('.qw-lightbox-overlay');
   var overlayImg = overlay.querySelector('img');
+  var hint = overlay.querySelector('.qw-lightbox-hint');
 
   function openLightbox(imgEl) {
     var fullRes = imgEl.getAttribute('data-pin-media') || imgEl.src;
     overlayImg.src = fullRes;
+    overlay.classList.remove('zoomed');
     overlay.classList.add('active');
+    overlay.scrollTop = 0;
     document.body.style.overflow = 'hidden';
+    // Show hint briefly
+    if (hint) { hint.style.opacity = '1'; setTimeout(function() { hint.style.opacity = '0'; }, 3000); }
   }
 
   function closeLightbox() {
-    overlay.classList.remove('active');
+    overlay.classList.remove('active', 'zoomed');
     document.body.style.overflow = '';
   }
 
+  function toggleZoom() {
+    overlay.classList.toggle('zoomed');
+  }
+
+  // Toolbar buttons
   overlay.querySelector('.qw-lightbox-close').addEventListener('click', function(e) {
     e.stopPropagation();
     closeLightbox();
   });
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeLightbox();
+  overlay.querySelector('.qw-lightbox-zoom').addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleZoom();
+  });
+  overlay.querySelector('.qw-lightbox-newtab').addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (overlayImg.src) window.open(overlayImg.src, '_blank');
+  });
+
+  // Click image to toggle zoom
+  overlayImg.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleZoom();
+  });
+
+  // Click background to close
+  overlay.querySelector('.qw-lightbox-inner').addEventListener('click', function(e) {
+    if (e.target !== overlayImg) closeLightbox();
   });
 
   function findImageInFigure(figure) {
