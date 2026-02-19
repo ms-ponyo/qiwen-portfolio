@@ -1520,6 +1520,13 @@ a.item-action {
   top:0 !important; left:0 !important; position:absolute !important;
   overflow:visible !important;
 }
+/* Keep like button, view count, comments above the card overlay */
+.post-footer__like-button,
+button[aria-label="Like post"],
+button[aria-label="Unlike post"] {
+  position: relative !important;
+  z-index: 11 !important;
+}
 </style>
 <style>
 .lvxhkV { pointer-events: none !important; }
