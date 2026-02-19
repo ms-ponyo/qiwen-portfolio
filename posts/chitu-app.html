@@ -870,11 +870,11 @@
 }
 .qw-lightbox-overlay.active { display:block; }
 .qw-lightbox-inner {
-  min-height:100%; display:flex; justify-content:center; align-items:flex-start;
+  min-height:100%; min-width:min-content; display:flex; align-items:flex-start;
   padding:2vh 0;
 }
 .qw-lightbox-overlay img {
-  max-width:92vw; display:block; cursor:zoom-in;
+  max-width:92vw; display:block; cursor:zoom-in; margin:0 auto;
   position:static !important; width:auto !important; height:auto !important;
   flex-shrink:0;
 }
