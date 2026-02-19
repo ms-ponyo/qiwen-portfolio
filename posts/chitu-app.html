@@ -873,49 +873,72 @@
 
 
 
+
 <style>
 .qw-lightbox-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.9); z-index:99999; cursor:pointer;
+  background:rgba(0,0,0,0.92); z-index:99999; cursor:pointer;
   justify-content:center; align-items:center;
 }
 .qw-lightbox-overlay.active { display:flex; }
 .qw-lightbox-overlay img {
-  max-width:95%; max-height:95%; object-fit:contain;
+  max-width:92vw; max-height:92vh; object-fit:contain;
+  position:static !important; width:auto !important; height:auto !important;
 }
 [data-hook="image-expand-button"] { cursor:pointer; }
+figure[data-hook="figure-IMAGE"] wow-image img,
+figure[data-hook="figure-IMAGE"] [data-hook="image-viewer"] img { cursor:pointer; }
 </style>
 <div class="qw-lightbox-overlay" onclick="this.classList.remove('active')">
   <img src="" alt="">
 </div>
 <script>
-// Make all expand buttons work
-document.querySelectorAll('[data-hook="image-expand-button"]').forEach(function(btn) {
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    var figure = btn.closest('figure');
-    var img = figure ? (figure.querySelector('wow-image img[src]') || figure.querySelector('img[src*="wixstatic"]')) : null;
-    if (!img) {
-      var container = btn.parentElement && btn.parentElement.parentElement;
-      if (container) img = container.querySelector('wow-image img[src]') || container.querySelector('img[src*="wixstatic"]');
+(function() {
+  var overlay = document.querySelector('.qw-lightbox-overlay');
+  var overlayImg = overlay.querySelector('img');
+
+  function openLightbox(imgEl) {
+    // Prefer data-pin-media (full-res URL from Wix), fall back to src with boosted width
+    var fullRes = imgEl.getAttribute('data-pin-media');
+    if (!fullRes) {
+      fullRes = imgEl.src.replace(/w_\d+/, 'w_1920').replace(/h_\d+/, 'h_1280').replace(/,blur_\d+/, '');
     }
-    if (img && img.src) {
-      // Build full-res URL: replace width with 1400 and remove blur
-      var src = img.src;
-      var fullRes = src.replace(/w_\d+/, 'w_1400').replace(/,blur_\d+/, '');
-      var overlay = document.querySelector('.qw-lightbox-overlay');
-      overlay.querySelector('img').src = fullRes;
-      overlay.classList.add('active');
+    overlayImg.src = fullRes;
+    overlay.classList.add('active');
+  }
+
+  function findImageInFigure(figure) {
+    return figure.querySelector('wow-image img[src]') || figure.querySelector('img[src*="wixstatic"]');
+  }
+
+  // Attach to all expand buttons
+  document.querySelectorAll('[data-hook="image-expand-button"]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var figure = btn.closest('figure');
+      var img = figure ? findImageInFigure(figure) : null;
+      if (img) openLightbox(img);
+    });
+  });
+
+  // Attach to all images inside figure-IMAGE (clicking image itself opens lightbox)
+  document.querySelectorAll('figure[data-hook="figure-IMAGE"]').forEach(function(figure) {
+    var img = findImageInFigure(figure);
+    if (img) {
+      img.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLightbox(img);
+      });
     }
   });
-});
-// Close lightbox on Escape key
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    document.querySelector('.qw-lightbox-overlay').classList.remove('active');
-  }
-});
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') overlay.classList.remove('active');
+  });
+})();
 </script>
 
 </body>
